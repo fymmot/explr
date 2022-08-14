@@ -1058,4 +1058,11 @@ var countryScore = 0;
     window.countryScore = countryScore;
 
   }
+
+  map.addArtists = function (newArtists) {
+    var country = g.selectAll(".country");
+    country.transition().duration(200)
+    // extract country center from clicked(d)
+  }
+
 })(window, document)
