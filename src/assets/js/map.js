@@ -1010,6 +1010,45 @@ var countryScore = 0;
     move([pt[0] + x * k, pt[1] + y * k], k, true);
 
   }
+function getCountryCenter(countryTopoData) {
+  let x, y;
+  let b = path.bounds(countryTopoData);
+
+  //Special rules for special countries:
+  switch (countryTopoData.id) {
+    case 840: //US
+      x = -(b[1][0] + b[0][0]) / 4;
+      y = -(b[1][1] + b[0][1]) / 1.9;
+      break;
+    case 250: //France
+      x = -(b[1][0] + b[0][0]) / 1.94;
+      y = -(b[1][1] + b[0][1]) / 2.81;
+      break;
+    case 528: //Netherlands
+      x = -(b[1][0] + b[0][0]) / 1.605;
+      y = -(b[1][1] + b[0][1]) / 2.54;
+      break;
+    case 643: //Russia
+      x = -(b[1][0] + b[0][0]) / 1.40;
+      y = -(b[1][1] + b[0][1]) / 2;
+      break;
+    case 554: //New Zeeland
+      x = -(b[1][0] + b[0][0]) / 1.03;
+      y = -(b[1][1] + b[0][1]) / 1.87;
+      break;
+    case 36: //Australia
+      x = -(b[1][0] + b[0][0]) / 2;
+      y = -(b[1][1] + b[0][1]) / 2.1;
+      break;
+
+    default: //Everybody else
+      x = -(b[1][0] + b[0][0]) / 2;
+      y = -(b[1][1] + b[0][1]) / 2;
+      break;
+  }
+
+  return { x, y };
+}
 
   //function to add points and text to the map (used in plotting capitals)
   function addpoint(lat, lon, text) {
@@ -1060,9 +1099,26 @@ var countryScore = 0;
   }
 
   map.addArtists = function (newArtists) {
-    var country = g.selectAll(".country");
-    country.transition().duration(200)
+    var countries = g.selectAll(".country").data();
+
+    countries.forEach(c => {
+      const ci = getCountryCenter(c);
+      g.select(`[id='${c.id}']`).style("transform-origin", `${-ci.x}px ${-ci.y}px `)
+
+      
+    })
+
+    g.selectAll("circle").data(countries).enter().append("circle").style("stroke", "gray")
+    .style("fill", "black")
+    .attr("r", c => c.id === 36  ? 2 : 0)
+    .attr("cx", c => {const info = getCountryCenter(c); return -info.x;})
+    .attr("cy", c => {const info = getCountryCenter(c); return -info.y;})
+    
+    countries.transition().duration(200)
     // extract country center from clicked(d)
   }
 
 })(window, document)
+
+
+setTimeout(()=> map.addArtists(),1000)
