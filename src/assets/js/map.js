@@ -323,6 +323,10 @@ var countryScore = 0;
         })
         .style("fill", function() {
           return color(0);
+        })
+        .style("transform-origin", function (d) {
+          const center = getCountryCenter(d);
+          return `${-center.x}px ${-center.y}px`;
         });
     }
     //Color countries
@@ -1101,12 +1105,12 @@ function getCountryCenter(countryTopoData) {
   map.addArtists = function (newArtists) {
     var countries = g.selectAll(".country").data();
 
-    countries.forEach(c => {
-      const ci = getCountryCenter(c);
-      g.select(`[id='${c.id}']`).style("transform-origin", `${-ci.x}px ${-ci.y}px `)
+    // countries.forEach(c => {
+    //   const ci = getCountryCenter(c);
+    //   g.select(`[id='${c.id}']`).style("transform-origin", `${-ci.x}px ${-ci.y}px `)
 
       
-    })
+    // })
 
     g.selectAll("circle").data(countries).enter().append("circle").style("stroke", "gray")
     .style("fill", "black")
@@ -1114,7 +1118,7 @@ function getCountryCenter(countryTopoData) {
     .attr("cx", c => {const info = getCountryCenter(c); return -info.x;})
     .attr("cy", c => {const info = getCountryCenter(c); return -info.y;})
     
-    countries.transition().duration(200)
+    g.selectAll(".country").transition().duration(200).style("transform","scale(1.2)").transition().duration(200).style("transform","scale(1)")
     // extract country center from clicked(d)
   }
 
