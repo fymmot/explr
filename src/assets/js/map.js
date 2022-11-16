@@ -1079,50 +1079,49 @@ function getCountryCenter(countryTopoData) {
 
   }
 
-  /** "PUBLUC" FUNCTIONS **/
-  map.putCountryCount = function(object) {
-    countryCount = JSON.parse(JSON.stringify(object));
-    countryScore = 0;
-    var countryList = [];
+  function animateCountries(countryDict) {
+    var countries = g.selectAll(".country").filter(c => !!countryDict[c.id]);
 
-    // Extract info for the current user
-    d3.keys(countryCount).forEach(function(id) {
-      if (countryCount[id][SESSION.name]) {
-        countryCount[id] = countryCount[id][SESSION.name];
-        countryScore = countryScore + 1;
-        countryList.push(+id)
-      } else {
-        // delete countryCount[id];
-      }
+    setTimeout(() => {
+      // bounce
+      // countries.transition()
+      // .duration(200)
+      // .style("transform", "scale(1.1)")
+      // .delay((_, i) => i * 100)
+      // .transition().duration(150)
+      // .style("transform", "scale(1)");
+
+      // fade
+      countries.transition()
+        .duration(200)
+        .style("opacity", "0.8")
+        .delay((_, i) => i * 100)
+        .transition().duration(150)
+        .style("opacity", "1");
+    })
+  }
+
+  function putCountryCount(newArtists) {
+    Object.entries(newArtists).forEach(([key, value]) => {
+      countryCount[key] = (countryCount[key] || []).concat(value);
+    });
+
+    countryScore = 0;
+
+    d3.keys(countryCount).forEach(function (id) {
+      countryScore = countryScore + 1;
     })
 
     if (topo) redraw();
 
     window.countryScore = countryScore;
-
   }
 
-  map.addArtists = function (newArtists) {
-    var countries = g.selectAll(".country").data();
-
-    // countries.forEach(c => {
-    //   const ci = getCountryCenter(c);
-    //   g.select(`[id='${c.id}']`).style("transform-origin", `${-ci.x}px ${-ci.y}px `)
-
-      
-    // })
-
-    g.selectAll("circle").data(countries).enter().append("circle").style("stroke", "gray")
-    .style("fill", "black")
-    .attr("r", c => c.id === 36  ? 2 : 0)
-    .attr("cx", c => {const info = getCountryCenter(c); return -info.x;})
-    .attr("cy", c => {const info = getCountryCenter(c); return -info.y;})
-    
-    g.selectAll(".country").transition().duration(200).style("transform","scale(1.2)").transition().duration(200).style("transform","scale(1)")
-    // extract country center from clicked(d)
+  /** "PUBLUC" FUNCTIONS **/
+  
+  map.addArtists = function (newArtistsByCountry) {
+    putCountryCount(newArtistsByCountry);
+    animateCountries(newArtistsByCountry);
   }
 
 })(window, document)
-
-
-setTimeout(()=> map.addArtists(),1000)
