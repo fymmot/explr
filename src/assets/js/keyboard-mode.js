@@ -96,6 +96,11 @@ function displayKeyboardModeMessage() {
     const innerMessage = document.createElement("div");
     innerMessage.innerHTML = "<h2>Keyboard mode active! <span class='fa fa-keyboard'></span> </h2><p>Type a <kbd>letter</kbd> to select a country.<p><p>Move around with <kbd>&#8592;</kbd><kbd>&#8594;</kbd><kbd>&#8593;</kbd><kbd>&#8595;</kbd> keys.</p><p>Exit by zooming out with <kbd>-</kbd> key. </p>";
     message.appendChild(innerMessage);
+    // TODO: Find a working way to only announce this once
+    if (!hasAnnounced) {
+        announcer.announce("Keyboard mode active! Press L to hear the list of countries.")
+        hasAnnounced = true;
+    }
   }
 
     function hideKeyboardModeMessage() {
@@ -130,11 +135,6 @@ function getVisibleCountries(zoom) {
         // Lets start keyboard mode
         KEYBOARD_MODE_ACTIVE = true;
         displayKeyboardModeMessage();
-        // TODO: Find a working way to only announce this once
-        if (!hasAnnounced) {
-            announcer.announce("Keyboard mode active! Press L to hear the list of countries.")
-            hasAnnounced = true;
-        }
         // Hide controls, footer and legend
         document.getElementById("controls").classList.add("hidden");
         document.getElementById("legend").classList.add("hidden");
@@ -183,6 +183,8 @@ function getVisibleCountries(zoom) {
             .attr("y", center.y + 4) // position the text below the number
             .text(utils.getCountryNameFromId(parseInt(country.id.slice(1))));
         });
+      } else {
+        hasAnnounced = false;
       }
   }
 
