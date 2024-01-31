@@ -97,9 +97,10 @@ function displayKeyboardModeMessage() {
     innerMessage.innerHTML = "<h2>Keyboard mode active! <span class='fa fa-keyboard'></span> </h2><p>Type a <kbd>letter</kbd> to select a country.<p><p>Move around with <kbd>&#8592;</kbd><kbd>&#8594;</kbd><kbd>&#8593;</kbd><kbd>&#8595;</kbd> keys.</p><p>Exit by zooming out with <kbd>-</kbd> key. </p>";
     message.appendChild(innerMessage);
     // TODO: Find a working way to only announce this once
-    if (!hasAnnounced) {
+    hasAnnouncedOut = false;
+    if (!hasAnnouncedIn) {
         announcer.announce("Keyboard mode active! Press L for list of countries.")
-        hasAnnounced = true;
+        hasAnnouncedIn = true;
     }
   }
 
@@ -119,7 +120,8 @@ function getPathCenter(path) {
     
   }
 
-let hasAnnounced = false;
+let hasAnnouncedIn = false;
+let hasAnnouncedOut = false;
 
 function getVisibleCountries(zoom) {
     keyboardMode.cleanup();
@@ -184,8 +186,11 @@ function getVisibleCountries(zoom) {
             .text(utils.getCountryNameFromId(parseInt(country.id.slice(1))));
         });
       } else {
-        hasAnnounced = false;
-        announcer.announce("Left keyboard mode", "polite", 100);
+        if (!hasAnnouncedOut) {
+            announcer.announce("Left keyboard mode", "polite", 100);
+            hasAnnouncedOut = true;
+        }
+        hasAnnouncedIn = false;
       }
   }
 
