@@ -98,7 +98,7 @@ function displayKeyboardModeMessage() {
     message.appendChild(innerMessage);
     // TODO: Find a working way to only announce this once
     if (!hasAnnounced) {
-        announcer.announce("Keyboard mode active! Press L to hear the list of countries.")
+        announcer.announce("Keyboard mode active! Press L for list of countries.")
         hasAnnounced = true;
     }
   }
@@ -185,6 +185,7 @@ function getVisibleCountries(zoom) {
         });
       } else {
         hasAnnounced = false;
+        announcer.announce("Left keyboard mode", "polite", 100);
       }
   }
 
