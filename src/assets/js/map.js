@@ -546,9 +546,9 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
     // Append the artists to the details section
     pageItems.forEach(artist => {
       var artistDiv = d3.select("#top-artist-list")
-      .append("li")
+        .append("li")
         .attr("class", "artist-li")
-      .append("button")
+        .append("button")
         .attr({
           "class": `scrobbled artist-div lowlight`,
           "data-artist": artist.artist
@@ -564,6 +564,8 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
             "highlight": true,
             "lowlight": false
           });
+          // Set aria-owns attribute on the li parent of the button for better screen reader ux
+          d3.select(this.parentNode).attr("aria-owns", "summaryText");
           d3.selectAll(".artist-div").attr("aria-pressed", "false");
           d3.select(this).attr("aria-pressed", "true");
 
