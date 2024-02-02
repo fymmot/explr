@@ -129,7 +129,13 @@ function getVisibleCountries(zoom) {
     var countries = document.querySelectorAll(".country");
     var countriesArray = Array.from(countries);
     // Filter the countries to get only the ones that are visible
+    const excludedCountryNames = ["Fiji", "Kiribati", "France", "United States"];
+
     visibleCountries = countriesArray.filter((country) => {
+        let countryName = utils.getCountryNameFromId(parseInt(country.id.slice(1)));
+        if (excludedCountryNames.includes(countryName) || countryName === undefined || countryName === null || countryName === "") {
+            return false;
+        }
         // Get the bounding box of the current country
         return isInViewport(country);
     });
