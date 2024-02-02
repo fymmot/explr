@@ -129,7 +129,7 @@ function getVisibleCountries(zoom) {
     var countries = document.querySelectorAll(".country");
     var countriesArray = Array.from(countries);
     // Filter the countries to get only the ones that are visible
-    const excludedCountryNames = ["Fiji", "Kiribati", "France", "United States"];
+    const excludedCountryNames = ["Fiji", "Kiribati", "New Zeeland"];
 
     visibleCountries = countriesArray.filter((country) => {
         let countryName = utils.getCountryNameFromId(parseInt(country.id.slice(1)));
@@ -367,9 +367,13 @@ function getVisibleCountries(zoom) {
                     // announce the list of countries
                     let message = "List of countries: ";
                     const countries = getCurrentlyVisibleCountries();
-                    countries.forEach((country) => {
-                        message += `${country.number}: ${country.name}, `;
-                    });
+                    if (countries.length === 0) {
+                        message = "No visible countries";
+                    } else {
+                        countries.forEach((country) => {
+                            message += `${country.number}: ${country.name}, `;
+                        });
+                    }
                     announcer.announce(message, "assertive", 100);
                     console.log(message);
                     ga('send', {
