@@ -56,13 +56,17 @@ const handleLetterKeyPress = (e) => {
 }
 
 function getCurrentlyVisibleCountries() {
+    const userName = window.location.href.split("username=")[1];
+    let data = script.getCurrentData();
     // return an array consiting of objects with the country name in plain text + the index number of the country
     let formattedCountries = [];
     visibleCountries.forEach((country) => {
+        const countryId = parseInt(country.id.slice(1));
         const letter = ALPHABET[visibleCountries.indexOf(country)];
         formattedCountries.push({
             name: utils.getCountryNameFromId(parseInt(country.id.slice(1))),
-            number: letter
+            number: letter,
+            artistCount: data[countryId][userName].length || 0
         });
     });
     return formattedCountries;
@@ -367,13 +371,9 @@ function getVisibleCountries(zoom) {
                     // announce the list of countries
                     let message = "List of countries: ";
                     const countries = getCurrentlyVisibleCountries();
-                    if (countries.length === 0) {
-                        message = "No visible countries";
-                    } else {
-                        countries.forEach((country) => {
-                            message += `${country.number}: ${country.name}, `;
-                        });
-                    }
+                    countries.forEach((country) => {
+                        message += `${country.number}: ${country.name} (${country.artistCount} artists), `;
+                    });
                     announcer.announce(message, "assertive", 100);
                     console.log(message);
                     ga('send', {
