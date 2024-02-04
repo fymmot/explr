@@ -149,29 +149,29 @@ function getVisibleCountries(zoom) {
             return false;
         }
         return isInViewport(country);
-    });
-
-    // Create a copy of the alphabet to use for new countries
-    let availableLetters = [...ALPHABET].filter(letter => !Object.values(countryLetterMap).includes(letter));
+    }).slice(0, MAX_COUNTRY_SUGGESTIONS);
 
     // Create a new map for the currently visible countries
     let newCountryLetterMap = {};
+    let availableLetters = [...ALPHABET];
 
+    // First, assign letters to countries that already have a letter and are still visible
+    for (let countryName in countryLetterMap) {
+        if (visibleCountries.some(country => utils.getCountryNameFromId(parseInt(country.id.slice(1))) === countryName)) {
+            newCountryLetterMap[countryName] = countryLetterMap[countryName];
+            const index = availableLetters.indexOf(countryLetterMap[countryName]);
+            if (index > -1) {
+                availableLetters.splice(index, 1);
+            }
+        }
+    }
+
+    // Then, assign the remaining letters to the new countries
     visibleCountries.forEach((country) => {
         let countryName = utils.getCountryNameFromId(parseInt(country.id.slice(1)));
-
-        // If the country already has a letter, use that
-        if (countryLetterMap[countryName]) {
-            newCountryLetterMap[countryName] = countryLetterMap[countryName];
-        } else {
-            // Otherwise, assign a new letter
-            for (let i = 0; i < availableLetters.length; i++) {
-                if (!Object.values(newCountryLetterMap).includes(availableLetters[i])) {
-                    newCountryLetterMap[countryName] = availableLetters[i];
-                    availableLetters.splice(i, 1);
-                    break;
-                }
-            }
+        if (!newCountryLetterMap[countryName] && availableLetters.length > 0) {
+            newCountryLetterMap[countryName] = availableLetters[0];
+            availableLetters.splice(0, 1);
         }
     });
 
