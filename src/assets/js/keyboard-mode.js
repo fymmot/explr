@@ -15,11 +15,11 @@ let keyBuffer = '';
 let keyBufferTimer = null;
 let keyboardModeActive = false;
 
-const handleLetterKeyPress = (e) => {
+let countryLetterMap = {};
 
+const handleLetterKeyPress = (e) => {
     // Check if user has pressed a letter key from A to Z
     if (e.key.match(/[a-zA-Z]/) && e.target.tagName !== "INPUT") {
-
         // Check if it's a single key press with no modifier keys
         if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
             return;
@@ -27,30 +27,25 @@ const handleLetterKeyPress = (e) => {
         // Convert the key to uppercase
         const key = e.key.toUpperCase();
 
-        // Convert the key to an index based on the custom alphabet
-        const index = ALPHABET.indexOf(key);
+        // Find the country that has been assigned the pressed key
+        const targetCountryName = Object.keys(countryLetterMap).find(country => countryLetterMap[country] === key);
+        const targetCountry = visibleCountries.find(country => utils.getCountryNameFromId(parseInt(country.id.slice(1))) === targetCountryName);
 
-        // Check if the index is within the range of visible countries
-        if (index >= 0 && index < visibleCountries.length) {
-            // Get the country with the corresponding index
-            var targetCountry = visibleCountries[index];
+        // Generate a click on the target country
+        if (targetCountry) {
+            targetCountry.dispatchEvent(new Event('click'));
+            // Focus the country name
+            setTimeout(() => {
+                document.querySelector('#cnameCont h1').setAttribute("tabindex", "-1");
+                document.querySelector('#cnameCont h1').focus();
+            }, 250);
 
-            // Generate a click on the target country
-            if (targetCountry) {
-                targetCountry.dispatchEvent(new Event('click'));
-                // Focus the country name
-                setTimeout(() => {
-                    document.querySelector('#cnameCont h1').setAttribute("tabindex", "-1");
-                    document.querySelector('#cnameCont h1').focus();
-                }, 250);
-
-                ga('send', {
-                    hitType: 'event',
-                    eventCategory: 'Keyboard',
-                    eventAction: 'Opened country',
-                    eventLabel: 'test'
-                });
-            }
+            ga('send', {
+                hitType: 'event',
+                eventCategory: 'Keyboard',
+                eventAction: 'Opened country',
+                eventLabel: 'test'
+            });
         }
     }
 }
@@ -62,13 +57,27 @@ function getCurrentlyVisibleCountries() {
     let formattedCountries = [];
     visibleCountries.forEach((country) => {
         const countryId = parseInt(country.id.slice(1));
-        const letter = ALPHABET[visibleCountries.indexOf(country)];
+        const countryName = utils.getCountryNameFromId(countryId);
+        const letter = countryLetterMap[countryName];
         formattedCountries.push({
             name: utils.getCountryNameFromId(parseInt(country.id.slice(1))),
             number: letter,
-            artistCount: data[countryId][userName].length || 0
+            artistCount: data[countryId] && data[countryId]?.[userName] ? data[countryId][userName].length : 0
         });
     });
+    // Sort the formattedCountries array alphabetically based on the assigned letter
+    formattedCountries.sort((a, b) => {
+        if (a.number === undefined && b.number === undefined) {
+            return 0;
+        } else if (a.number === undefined) {
+            return 1;
+        } else if (b.number === undefined) {
+            return -1;
+        } else {
+            return a.number.localeCompare(b.number);
+        }
+    });
+
     return formattedCountries;
 }
 
@@ -132,7 +141,6 @@ function getVisibleCountries(zoom) {
 
     var countries = document.querySelectorAll(".country");
     var countriesArray = Array.from(countries);
-    // Filter the countries to get only the ones that are visible
     const excludedCountryNames = ["Fiji", "Kiribati", "New Zeeland"];
 
     visibleCountries = countriesArray.filter((country) => {
@@ -140,9 +148,36 @@ function getVisibleCountries(zoom) {
         if (excludedCountryNames.includes(countryName) || countryName === undefined || countryName === null || countryName === "") {
             return false;
         }
-        // Get the bounding box of the current country
         return isInViewport(country);
     });
+
+    // Create a copy of the alphabet to use for new countries
+    let availableLetters = [...ALPHABET].filter(letter => !Object.values(countryLetterMap).includes(letter));
+
+    // Create a new map for the currently visible countries
+    let newCountryLetterMap = {};
+
+    visibleCountries.forEach((country) => {
+        let countryName = utils.getCountryNameFromId(parseInt(country.id.slice(1)));
+
+        // If the country already has a letter, use that
+        if (countryLetterMap[countryName]) {
+            newCountryLetterMap[countryName] = countryLetterMap[countryName];
+        } else {
+            // Otherwise, assign a new letter
+            for (let i = 0; i < availableLetters.length; i++) {
+                if (!Object.values(newCountryLetterMap).includes(availableLetters[i])) {
+                    newCountryLetterMap[countryName] = availableLetters[i];
+                    availableLetters.splice(i, 1);
+                    break;
+                }
+            }
+        }
+    });
+
+    // Replace the old map with the new one
+    countryLetterMap = newCountryLetterMap;
+
     if (zoom.scale() >= MIN_ZOOM_LEVEL_FOR_KEYBOARD_MODE) {
         // Lets start keyboard mode
         KEYBOARD_MODE_ACTIVE = true;
@@ -162,8 +197,8 @@ function getVisibleCountries(zoom) {
 
         var center = getPathCenter(country);
 
-        const letter = ALPHABET[visibleCountries.indexOf(country)];
-
+        let countryName = utils.getCountryNameFromId(parseInt(country.id.slice(1)));
+        const letter = countryLetterMap[countryName];
     
         // Append a circle
         d3.select(country.parentElement).append("rect")
