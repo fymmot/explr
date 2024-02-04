@@ -1097,6 +1097,26 @@ function getCountryCenter(countryTopoData) {
       x = -(b[1][0] + b[0][0]) / 1.94;
       y = -(b[1][1] + b[0][1]) / 2.81;
       break;
+    case 724: // Spain
+      x = -(b[1][0] + b[0][0])/1.96;
+      y = -(b[1][1] + b[0][1])/2.1;
+      break;
+    case 620: // Portugal
+      x = -(b[1][0] + b[0][0]) / 1.88;
+      y = -(b[1][1] + b[0][1]) / 2.05;
+      break;
+    case 578: // Norway
+      x = -(b[1][0] + b[0][0]) / 1.98;
+      y = -(b[1][1] + b[0][1]) / 1.9;
+      break;
+    case 704:  // Vietnam
+      x = -(b[1][0] + b[0][0]) / 1.98;
+      y = -(b[1][1] + b[0][1]) / 2;
+      break;
+    case 152: // Chile
+      x = -(b[1][0] + b[0][0]) / 1.75;
+      y = -(b[1][1] + b[0][1]) / 2;
+      break;
     case 528: //Netherlands
       x = -(b[1][0] + b[0][0]) / 1.605;
       y = -(b[1][1] + b[0][1]) / 2.54;
